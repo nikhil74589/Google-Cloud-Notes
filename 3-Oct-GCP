@@ -1,85 +1,70 @@
-1.What is Compute Engine?
-GCE = Goggle Compute Engine IaaS (Infrastructure as a Service)
-you get virtual machines (VMs) running on Google Infrastructure and you manage
-OS and Software .
+GCP (Google Cloud storage).
 
-Image(OS + software for boot disk) + Machine Type (vCPU and Memory) = VM instance
+What is cloud storage
+GCS= Google managed object storage  for any amount of unstructured data , access over HTTPS APIs.
 
-Zonal : A VM lives on one Zone if that zone fails the VM is affected.
-Disks : Boot disk and extra disk must be in the same zone as the VM.
-Network : Each VM gets a NIC (Network Interface Card) in a VPC subnet with an internal IP
-Identity : Each VM runs as Service Account.
+Application → Bucket  → Object.
 
+Backups , static websites , data lakes , Media , ML dataset . Terraform state.
 
-Use Cloud Run or GKE when you do not want to manage VMs.
+Bucket and objects.
+BUCKET : Name is globally unique.
+Has Location , default  storage class , IAM
+Live inside a Project
 
-2.Machine Types : Machine Families and types.
-A machine type defines the vCPU (Virtual CPU) count and memory of the VM Name
-pattern :n2-standard-4 = series ,type . vCPUs.
+OBJECTS:
+Data + metadata , up to 5 TB.
+Name up to 1024 bytes
+Immutable : an update creates a new generation.
+Has generation number.
 
-General Purpose :
-E2,N2,N2D,N4 and more
-web servers ,apps , dev/test.
+Location
+Choose were data lives. It cannot be changed after the bucket created
 
-E2 is cost-optimized
+Region:
+One region Asia-south1
+Lowest cost
+Best when  compute is in same region
 
-Compute Optimized : High CPU Performance ,gaming ,HPC
+Dual-Region (DR)
+Two specific Region
+Higher availability
+Turbo replication option (15 min RPO)
 
-Memory Optimized : M series , very high memory per vCPU ,analytics.
-
-Storage / Accelerated : Storage-optimized high local SSD throughout , AI/ML,GPU
-
-3. VM anatomy and lifecycle:
-What you configured when you create a VM ,and what happens during its life.
-Boot Disk : OS Image + disk type + size
-Network : VPC , Subnet + ,IPs ,network tags.
-Identity : Service account and access scopes.
-Metadata : key-value data , user script SSH settings.
-Availability : Standard , Spot and host maintenance.
-Labels : Key-Value tags cost tracking and organization.
+Multi-Region (MR)
+Large area US, EU , Asia
+Higher availability
+Good for Global content serving(CDN   means cloud Front)
 
 
-Lifecycle : Provisioning -> Stagging -> Running-> Stopping -> Terminated.
+RPO = Recovery Point Objective : How much recent data could you lose in a disaster.
+Storage Classes
+1. Standard     Day: None        Frequent
+2. Nearline     Day: 30 days    about once a month
+3. Cold line    Day: 90 days    about once a quarter
+4. Archive      Day: 365 days  about once a year 
 
-4.Persistant Disk.
+Early deletion fee : Deleting or overwriting before the minimum duration still charges the remaining days.
 
-PD =  Network Attached block storage Data stays even when the VM stopped or deleted.
+Default class is set on the bucket ,. You can also set the class per object
 
-PD-Standard
-PD-Balanced
-PD-SSD
-Hyper disk
-Local SSD
+Lifecycle and Auto class.
+Lifecycle rule :  
+Condition: Age , created before , storage class , number of newer version
+Action: Delete , SetStorageClass , Abort Incomplete Multiple Upload
 
 
-Zonal PD live in one zone. Regional PD replicate synchronously across two
-zones in same region.
+AUTOCLASS:  Bucket Setting .  Moves object between class automatically based on access pattern , without you writing rules , check current pricing for management fees.
 
-Snapshots are incremental backups , use schedules for automation.
-You can increase disk online , but not shrink.
-Boot disk has auto-delete on by default. Data disks do not delete unless you set it.
-Encrypted at rest by default . Customer-managed keys (CMK) are optional.
+Security : Access Control
+Prefer IAM(Identity Access Management) , ACLs (Access Control lists).
+ 
+Object Viewer
+Object Creation 
+Object users
+Object Admin
+Storage Admin
 
-A disk must be in the same zone as the VM. To move a VM to another zone use a snapshot or image.
+UBLA : Uniform bucket- level access turns of ACLs  so IAM is the only control access.
 
-5.Templates : Images and Instance Templates
-Both helps you to create VMs.
-
-Image:
-A boot disk template (OS + Software).
-Public images : Debian , Ubuntu etc.
-Custom images : Your Golden image
-Image family points to latest image.
-
-Instance Templates:
-
-Saved VM configuration
-Machine type image disk network
-Used by MIG (Managed Instance Group) to create VMs.
-
-6.Managed Instance Groups
-7.Autosacling
-8.Auto healing and rolling updates
-9.Spot VMs
-10.Startup Scripts and metadata
-11.Security best practices.
+Singed URL for sharing buckets objects securely.
