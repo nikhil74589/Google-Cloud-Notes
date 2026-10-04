@@ -1,0 +1,21 @@
+Monolithic vs Microservices vs Distributed
+
+Monolithic = In monolithic architecture the whole app in one codebase deployed 
+as one unit
+
+Microservices = In microservices arch the app is split into small independent
+services , each deployed on its own.
+
+Distributed = In distributed system runs on multiple machines and communicate over 
+a network.
+Types : Coupled architecture and Decoupled architecture
+
+Differences in Architecture
+
+Monolithic vs Microservices = how you split the code (arc style )
+Distributed = How many machines it runs on (nature of the deployment)
+
+When to use what
+Small teams or new project -> Monolithic
+Code has grown teams are increasing -> Modular monolithic (micro)
+Large project enterprise level = Distributed
