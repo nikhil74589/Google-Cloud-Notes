@@ -1,172 +1,85 @@
-GCP FOUNDATION AND HIERARCHY
+1.What is Compute Engine?
+GCE = Goggle Compute Engine IaaS (Infrastructure as a Service)
+you get virtual machines (VMs) running on Google Infrastructure and you manage
+OS and Software .
 
-Everything lives in hierarchy
+Image(OS + software for boot disk) + Machine Type (vCPU and Memory) = VM instance
 
-Organization -> Folder -> Project -> Resources
-
-Personal account may start directly with a project without an organization or folder.
-
-Project are where you actually create and manage resources.
-
-2.The project is the core boundary.
-
-A project is where resources live and where access , APIs , billing and quotas are managed.
-
-Project Name : Human-readable label , can be changed.
-Project ID : Globally unique string , can not be changed.
-Project Number : Auto-assigned numeric identifier.
+Zonal : A VM lives on one Zone if that zone fails the VM is affected.
+Disks : Boot disk and extra disk must be in the same zone as the VM.
+Network : Each VM gets a NIC (Network Interface Card) in a VPC subnet with an internal IP
+Identity : Each VM runs as Service Account.
 
 
-A project contains/Manages.
-IAM , APIs (Application programming Interface.) ,Billing ,VPC and more
+Use Cloud Run or GKE when you do not want to manage VMs.
 
-3.Identity And Access Management .
-IAM  answers one question: who are you and what can you do on which resource.
+2.Machine Types : Machine Families and types.
+A machine type defines the vCPU (Virtual CPU) count and memory of the VM Name
+pattern :n2-standard-4 = series ,type . vCPUs.
 
-IAM POLICY = PRINCIPAL: who get access + ROLE: Bundle of permissions
+General Purpose :
+E2,N2,N2D,N4 and more
+web servers ,apps , dev/test.
 
-Principal : An identity that receives access : user ,group ,service account ,workload identity
-Ex: dev@gmail.com
+E2 is cost-optimized
 
-Permission : One specific action like a view a resource , create a VM permission read a bucket you do not assign these directly.
+Compute Optimized : High CPU Performance ,gaming ,HPC
 
-ROLE : A collection of permissions you grant roles not individual permissions
+Memory Optimized : M series , very high memory per vCPU ,analytics.
 
-IAM POLICY : Decides which principal gets which role at which resources level.
+Storage / Accelerated : Storage-optimized high local SSD throughout , AI/ML,GPU
 
-Ex : dev@gmail.com has the compute admin role on devops-project
-
-
-4.Three types of roles
-
-Basic Roles : Viewer , Editor , Owner , Very Broad . Avoid in production.
-Predefined Roles : Compute Admin , Storage Admin , managed by Google , specific to a service
-Custom Roles : Permissions you choose yourself when predefined roles are too broad or too narrow
-
-5.IAM INHERITANCE : Access flows downward
-
-A policy granted at a higher supported level is inherited by everything below it.
- 
-Architecture
-
-The same thing applies from organization down to folder ,project and resources.
-
-Grant access at the lowest level that works to keep it isolate.
-
-6.Service Account : Identity for automation
-
-A service account is used by application , workloads ,automation or CI/CD not by human.
-
-GITHUB ACTIONS -> SERVICE ACCOUNT -> IAM -> GCP RESOURCES.
-TERRAFORM -> terraform-sa -> i am permissions -> VPC/VM/STORAGE.
+3. VM anatomy and lifecycle:
+What you configured when you create a VM ,and what happens during its life.
+Boot Disk : OS Image + disk type + size
+Network : VPC , Subnet + ,IPs ,network tags.
+Identity : Service account and access scopes.
+Metadata : key-value data , user script SSH settings.
+Availability : Standard , Spot and host maintenance.
+Labels : Key-Value tags cost tracking and organization.
 
 
-Critical for DevOps : Pipelines and tools should use service account not personal logins.
-Give each service account only the roles its job needs.
+Lifecycle : Provisioning -> Stagging -> Running-> Stopping -> Terminated.
 
-7.AuthN : Prove who are you . , AUTHZ : Deciding what you are allowed to do . IAM handles this.
+4.Persistant Disk.
 
-8. GCP  VS  AZURE
+PD =  Network Attached block storage Data stays even when the VM stopped or deleted.
 
-Organization = Tenant
-Folder = Management
-Project = Subscription
-Resource = Resource
-IAM = Azure RBAC
-Service Account = Managed Identity / Service Principal (Conceptual)
-
-9.Summary
-1.Organization > Folder > Project > Resources.
-2.Project is the main GCP working space
-3.IAM control access
-4.Principal + Role + Permissions + Policy = Access Model.
-5.Service Account are critical for DevOps automation.
-
-GCP VPC 
-VPC = Virtual Private Cloud a private isolated virtual network inside GCP where your VMs , resources connected and talk
-each other.
+PD-Standard
+PD-Balanced
+PD-SSD
+Hyper disk
+Local SSD
 
 
-VPC Network : Global resources
-Subnet A : Regional Spans all zones in asia-south1
-Subnet B : Regional Spans all zones in us-central1
-Subnet C : Regional Spans all zones in europe-west1
+Zonal PD live in one zone. Regional PD replicate synchronously across two
+zones in same region.
 
-Subnet : Regional IP ranges where resources get internal IPs
-Routes : Decides where traffic is flow.
-Firewall Rules : Decides which traffic is allowed or denied.
-IP Addresses : Internal (private) and external (public).
+Snapshots are incremental backups , use schedules for automation.
+You can increase disk online , but not shrink.
+Boot disk has auto-delete on by default. Data disks do not delete unless you set it.
+Encrypted at rest by default . Customer-managed keys (CMK) are optional.
 
-A VPC belongs to a project , Resources in one VPC can reach other on internal IPs across regions
-(if firewall allows).
+A disk must be in the same zone as the VM. To move a VM to another zone use a snapshot or image.
 
-2.Network Modes : Auto mode vs Custom Mode 
-Auto Mode :
-1. One subnet auto-created in every region
-2. Uses predefined ranges from 10.128.0.0/9
-3. New regions get subnets automatically
-4. Best for testing
+5.Templates : Images and Instance Templates
+Both helps you to create VMs.
 
-Custom Mode :
-1.No subnets create automatically.
-2.You choose regions and IP ranges.
-3.Full control of IP Planning.
-4.Recommonded for production.
+Image:
+A boot disk template (OS + Software).
+Public images : Debian , Ubuntu etc.
+Custom images : Your Golden image
+Image family points to latest image.
 
-Default network in a new project is an auto mode network .
+Instance Templates:
 
-Auto mode ranges are the same in every project so they can overlap with each other 
-networks or on-premises . Auto mode can be converted to custom mode , but not back  
+Saved VM configuration
+Machine type image disk network
+Used by MIG (Managed Instance Group) to create VMs.
 
-Internal IP :
-Private IP from the subnet range .
-Used for traffic inside the VPC.
-Every VM has one.
-
-External IP :
-1.Public reachable from internet
-2.Optional for a VM
-3.External IPV4 addresses are billed.
-
-EPHEMERAL IP :
-1.Assigned automatically 
-2.Can change when VM is stopped and started.
-3.Fine for temporary workloads.
-
-Static (Reserved) :
-Reserved for your project.
-Stays the same until you release it.
-Use for DNS records or allow-list.
-
-4.Routes
-1.Default Route :System generated (0.0.0.0/0)
-2.Subnet Route :System generated one per subnet range.
-3.Subnet Route : Created by you for a specific range
-4.Dynamic Route : BGP (Border Gateway protocol) mainly used for VPN
-
-5.VPC Firewall Rules
-Rules are defined at the VPC level and enforced on each VM they are stateful 
-if connection is allowed , its return traffic allowed.
-
-Direction
-priority
-Action
-Target
-Source / Destination
-Protocol / Port
-
-6.Cloud NAT and Cloud Router
-NAT = Lets VMs without an external IPs start outbound connection to the internet.
-Cloud NAT is a managed service 
-it configured per region on cloud router
-only out -bounded initiated connection works.
-
-7.Private Google Access
-A subnet setting that lets VMs with only internal IPs reach google APIs and services like cloud storage.
-Enabled per subnet.
-
-8.VPC Peering : Lab
-Perring must be set up from both sides.
-Peering is non -transitive : A-B and B-C does not mean A-C
-Subnet IP ranges must not overlap
-Firewall not shared
+6.Managed Instance Groups
+7.Autosacling
+8.Auto healing and rolling updates
+9.Spot VMs
+10.Startup Scripts and metadata
+11.Security best practices.
