@@ -1,0 +1,85 @@
+1.What is Compute Engine?
+GCE = Goggle Compute Engine IaaS (Infrastructure as a Service)
+you get virtual machines (VMs) running on Google Infrastructure and you manage
+OS and Software .
+
+Image(OS + software for boot disk) + Machine Type (vCPU and Memory) = VM instance
+
+Zonal : A VM lives on one Zone if that zone fails the VM is affected.
+Disks : Boot disk and extra disk must be in the same zone as the VM.
+Network : Each VM gets a NIC (Network Interface Card) in a VPC subnet with an internal IP
+Identity : Each VM runs as Service Account.
+
+
+Use Cloud Run or GKE when you do not want to manage VMs.
+
+2.Machine Types : Machine Families and types.
+A machine type defines the vCPU (Virtual CPU) count and memory of the VM Name
+pattern :n2-standard-4 = series ,type . vCPUs.
+
+General Purpose :
+E2,N2,N2D,N4 and more
+web servers ,apps , dev/test.
+
+E2 is cost-optimized
+
+Compute Optimized : High CPU Performance ,gaming ,HPC
+
+Memory Optimized : M series , very high memory per vCPU ,analytics.
+
+Storage / Accelerated : Storage-optimized high local SSD throughout , AI/ML,GPU
+
+3. VM anatomy and lifecycle:
+What you configured when you create a VM ,and what happens during its life.
+Boot Disk : OS Image + disk type + size
+Network : VPC , Subnet + ,IPs ,network tags.
+Identity : Service account and access scopes.
+Metadata : key-value data , user script SSH settings.
+Availability : Standard , Spot and host maintenance.
+Labels : Key-Value tags cost tracking and organization.
+
+
+Lifecycle : Provisioning -> Stagging -> Running-> Stopping -> Terminated.
+
+4.Persistant Disk.
+
+PD =  Network Attached block storage Data stays even when the VM stopped or deleted.
+
+PD-Standard
+PD-Balanced
+PD-SSD
+Hyper disk
+Local SSD
+
+
+Zonal PD live in one zone. Regional PD replicate synchronously across two
+zones in same region.
+
+Snapshots are incremental backups , use schedules for automation.
+You can increase disk online , but not shrink.
+Boot disk has auto-delete on by default. Data disks do not delete unless you set it.
+Encrypted at rest by default . Customer-managed keys (CMK) are optional.
+
+A disk must be in the same zone as the VM. To move a VM to another zone use a snapshot or image.
+
+5.Templates : Images and Instance Templates
+Both helps you to create VMs.
+
+Image:
+A boot disk template (OS + Software).
+Public images : Debian , Ubuntu etc.
+Custom images : Your Golden image
+Image family points to latest image.
+
+Instance Templates:
+
+Saved VM configuration
+Machine type image disk network
+Used by MIG (Managed Instance Group) to create VMs.
+
+6.Managed Instance Groups
+7.Autosacling
+8.Auto healing and rolling updates
+9.Spot VMs
+10.Startup Scripts and metadata
+11.Security best practices.
